@@ -61,7 +61,10 @@ class CROMA(nn.Module):
             )
 
         assert image_size % 8 == 0, 'image_size must be a multiple of 8'
-        assert num_heads % 2 == 0, 'num_heads must be a power of 2'
+        # Ensure num_heads is a power of two (e.g., 1,2,4,8,16,...) not just even
+        assert num_heads > 0 and (num_heads & (num_heads - 1)) == 0, (
+            'num_heads must be a power of 2'
+        )
 
         self.modalities = modalities
         self.encoder_dim = encoder_dim

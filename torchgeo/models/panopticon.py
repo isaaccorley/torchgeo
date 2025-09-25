@@ -23,7 +23,7 @@ class PanopticonPE(nn.Module):
         attn_dim: int,
         embed_dim: int,
         patch_size: int,
-        chnfus_cfg: dict[str, Any] = {},
+        chnfus_cfg: dict[str, Any] | None = None,
         img_size: int = 224,
     ) -> None:
         """Initialize a new Panopticon instance.
@@ -38,6 +38,7 @@ class PanopticonPE(nn.Module):
         super().__init__()
 
         self.conv3d = Conv3dWrapper(patch_size=patch_size, embed_dim=attn_dim)
+        chnfus_cfg = {} if chnfus_cfg is None else chnfus_cfg
         self.chnfus = ChnAttn(**chnfus_cfg, dim=attn_dim)
         self.proj = nn.Linear(attn_dim, embed_dim)
 
@@ -126,8 +127,8 @@ class ChnAttn(nn.Module):
     def __init__(
         self,
         dim: int,
-        chnemb_cfg: dict[str, Any] = {},
-        attn_cfg: dict[str, Any] = {},
+        chnemb_cfg: dict[str, Any] | None = None,
+        attn_cfg: dict[str, Any] | None = None,
         layer_norm: bool = False,
     ) -> None:
         """Initialize a channel attention module.
@@ -140,8 +141,10 @@ class ChnAttn(nn.Module):
         """
         super().__init__()
 
+        chnemb_cfg = {} if chnemb_cfg is None else chnemb_cfg
         self.chnemb = ChnEmb(**chnemb_cfg, embed_dim=dim)
         self.query = nn.Parameter(torch.randn(1, 1, dim))
+        attn_cfg = {} if attn_cfg is None else attn_cfg
         self.xattn = CrossAttnNoQueryProj(dim=dim, **attn_cfg)
 
         if layer_norm:

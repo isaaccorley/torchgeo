@@ -405,9 +405,25 @@ class DigitalTyphoon(NonGeoDataset):
         """Extract the dataset."""
         # Extract tarball
         for suffix in self.md5sums.keys():
-            with tarfile.open(
-                os.path.join(self.root, f'{self.data_root}.tar.gz{suffix}')
-            ) as tar:
+            archive_path = os.path.join(self.root, f'{self.data_root}.tar.gz{suffix}')
+
+            def _is_within_directory(directory: str, target: str) -> bool:
+                """Ensure target path is within the given directory.
+
+                Prevents path traversal when extracting archives by verifying
+                that the resolved target remains under the intended root.
+                """
+                abs_directory = os.path.abspath(directory)
+                abs_target = os.path.abspath(target)
+                return os.path.commonprefix([abs_directory, abs_target]) == abs_directory
+
+            with tarfile.open(archive_path) as tar:
+                for member in tar.getmembers():
+                    member_path = os.path.join(self.root, member.name)
+                    if not _is_within_directory(self.root, member_path):
+                        raise RuntimeError(
+                            f'Blocked path traversal attempt in archive: {member.name}'
+                        )
                 tar.extractall(path=self.root)
 
     def plot(
