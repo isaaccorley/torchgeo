@@ -27,6 +27,7 @@ from .dofa import (
     dofa_large_patch16_224,
     dofa_small_patch16_224,
 )
+from .dofa_clip import dofa_clip_base_patch16_224
 from .earthloc import EarthLoc_Weights, earthloc
 from .panopticon import Panopticon_Weights, panopticon_vitb14
 from .presto import Presto_Weights, presto
@@ -75,6 +76,7 @@ _model: dict[str, Callable[..., nn.Module]] = {
     'croma_base': croma_base,
     'croma_large': croma_large,
     'dofa_base_patch16_224': dofa_base_patch16_224,
+    'dofa_clip_base_patch16_224': dofa_clip_base_patch16_224,
     'dofa_huge_patch14_224': dofa_huge_patch14_224,
     'dofa_large_patch16_224': dofa_large_patch16_224,
     'dofa_small_patch16_224': dofa_small_patch16_224,
