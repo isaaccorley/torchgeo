@@ -24,6 +24,13 @@ class TestDOFA_CLIP:
         assert logits_per_image.shape == torch.Size([2, 3])
         assert logits_per_text.shape == torch.Size([3, 2])
 
+        image_features = model.encode_image(image, wavelengths)
+        text_features = model.encode_text(text)
+        assert image_features.shape == torch.Size([2, 128])
+        assert text_features.shape == torch.Size([3, 128])
+        assert torch.allclose(image_features.norm(dim=-1), torch.ones(2), atol=1e-5)
+        assert torch.allclose(text_features.norm(dim=-1), torch.ones(3), atol=1e-5)
+
     def test_dofa_clip_builder(self) -> None:
         model = dofa_clip_base_patch16_224(
             embed_dim=128,
@@ -40,3 +47,7 @@ class TestDOFA_CLIP:
         logits_per_image, logits_per_text = model(image, text, wavelengths)
         assert logits_per_image.shape == torch.Size([1, 1])
         assert logits_per_text.shape == torch.Size([1, 1])
+
+    def test_dofa_clip_builder_defaults(self) -> None:
+        model = dofa_clip_base_patch16_224()
+        assert isinstance(model, DOFA_CLIP)
