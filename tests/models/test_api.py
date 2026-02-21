@@ -41,6 +41,7 @@ from torchgeo.models import (
     croma_base,
     croma_large,
     dofa_base_patch16_224,
+    dofa_clip_base_patch16_224,
     dofa_huge_patch14_224,
     dofa_large_patch16_224,
     dofa_small_patch16_224,
@@ -77,6 +78,7 @@ builders = [
     croma_base,
     croma_large,
     dofa_base_patch16_224,
+    dofa_clip_base_patch16_224,
     dofa_huge_patch14_224,
     dofa_large_patch16_224,
     dofa_small_patch16_224,
@@ -144,7 +146,11 @@ def test_get_model(builder: Callable[..., nn.Module]) -> None:
 
 @pytest.mark.parametrize('builder', builders)
 def test_get_model_weights(builder: Callable[..., nn.Module]) -> None:
-    models_without_weights = [dofa_huge_patch14_224, dofa_small_patch16_224]
+    models_without_weights = [
+        dofa_clip_base_patch16_224,
+        dofa_huge_patch14_224,
+        dofa_small_patch16_224,
+    ]
     if builder in models_without_weights:
         return
 
