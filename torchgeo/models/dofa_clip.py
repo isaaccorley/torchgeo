@@ -3,7 +3,7 @@
 
 """DOFA-CLIP model."""
 
-from typing import Any
+from collections.abc import Sequence
 
 import torch
 import torch.nn as nn
@@ -123,7 +123,7 @@ class DOFA_CLIP(nn.Module):
         self.logit_scale = nn.Parameter(torch.tensor(2.6592))
 
     def encode_image(
-        self, image: torch.Tensor, wavelengths: list[float]
+        self, image: torch.Tensor, wavelengths: Sequence[float]
     ) -> torch.Tensor:
         """Encode images.
 
@@ -151,7 +151,7 @@ class DOFA_CLIP(nn.Module):
         return F.normalize(features, dim=-1)
 
     def forward(
-        self, image: torch.Tensor, text: torch.Tensor, wavelengths: list[float]
+        self, image: torch.Tensor, text: torch.Tensor, wavelengths: Sequence[float]
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Compute CLIP logits.
 
@@ -171,14 +171,41 @@ class DOFA_CLIP(nn.Module):
         return logits_per_image, logits_per_text
 
 
-def dofa_clip_base_patch16_224(*args: Any, **kwargs: Any) -> DOFA_CLIP:
+def dofa_clip_base_patch16_224(
+    embed_dim: int = 512,
+    image_embed_dim: int = 768,
+    image_depth: int = 12,
+    image_num_heads: int = 12,
+    context_length: int = 77,
+    vocab_size: int = 49408,
+    text_width: int = 512,
+    text_layers: int = 6,
+    text_heads: int = 8,
+) -> DOFA_CLIP:
     """DOFA-CLIP base patch size 16 model.
 
     Args:
-        *args: Additional positional arguments passed to :class:`DOFA_CLIP`.
-        **kwargs: Additional keyword arguments passed to :class:`DOFA_CLIP`.
+        embed_dim: Shared embedding dimension.
+        image_embed_dim: Image encoder embedding dimension.
+        image_depth: Number of image transformer layers.
+        image_num_heads: Number of image transformer attention heads.
+        context_length: Maximum text token length.
+        vocab_size: Text vocabulary size.
+        text_width: Text encoder width.
+        text_layers: Number of text transformer layers.
+        text_heads: Number of text transformer attention heads.
 
     Returns:
         A DOFA-CLIP model.
     """
-    return DOFA_CLIP(*args, **kwargs)
+    return DOFA_CLIP(
+        embed_dim=embed_dim,
+        image_embed_dim=image_embed_dim,
+        image_depth=image_depth,
+        image_num_heads=image_num_heads,
+        context_length=context_length,
+        vocab_size=vocab_size,
+        text_width=text_width,
+        text_layers=text_layers,
+        text_heads=text_heads,
+    )
