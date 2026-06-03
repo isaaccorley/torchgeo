@@ -10,6 +10,24 @@ import torch
 import torchvision
 from pytest import MonkeyPatch
 
+HEAVY_TESTS = (
+    'TestCROMALarge',
+    'TestViTHuge14',
+    'TestDOFAHuge14',
+    'TestScaleMAE',
+    'aurora_swin_unet',
+    'croma_large',
+    'vit_huge',
+    'dofa_huge',
+    'scalemae_large',
+)
+
+
+def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
+    for item in items:
+        if any(name in item.nodeid for name in HEAVY_TESTS):
+            item.add_marker(pytest.mark.xdist_group('heavy'))
+
 
 def load(*args: Any, progress: bool = False, **kwargs: Any) -> Any:
     return torch.load(*args, **kwargs)

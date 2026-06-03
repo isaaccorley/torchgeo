@@ -154,6 +154,8 @@ tests = [
     "pytest-cov>=4",
     # pytest-socket 0.3.4+ required for wheels
     "pytest-socket>=0.3.4",
+    # pytest-xdist 3+ required for parallel test execution
+    "pytest-xdist>=3",
 ]
 all = [
     "torchgeo[datasets,docs,models,style,tests]",

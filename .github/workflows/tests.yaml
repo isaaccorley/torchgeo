@@ -37,7 +37,11 @@ jobs:
         run: uv tree
       - name: Run checks
         run: |
-          pytest --cov=torchgeo --cov-report=xml
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            pytest --cov=torchgeo --cov-report=xml
+          else
+            OMP_NUM_THREADS=1 pytest -n auto --dist loadgroup --cov=torchgeo --cov-report=xml
+          fi
           python -m torchgeo --help
       - name: Report coverage
         uses: codecov/codecov-action@v6.0.1
@@ -63,7 +67,11 @@ jobs:
         run: uv tree
       - name: Run checks
         run: |
-          pytest --cov=torchgeo --cov-report=xml
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            pytest --cov=torchgeo --cov-report=xml
+          else
+            OMP_NUM_THREADS=1 pytest -n auto --dist loadgroup --cov=torchgeo --cov-report=xml
+          fi
           python -m torchgeo --help
       - name: Report coverage
         uses: codecov/codecov-action@v6.0.1
@@ -90,7 +98,11 @@ jobs:
         run: uv tree
       - name: Run checks
         run: |
-          pytest --cov=torchgeo --cov-report=xml
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            pytest --cov=torchgeo --cov-report=xml
+          else
+            OMP_NUM_THREADS=1 pytest -n auto --dist loadgroup --cov=torchgeo --cov-report=xml
+          fi
           python -m torchgeo --help
       - name: Report coverage
         uses: codecov/codecov-action@v6.0.1
