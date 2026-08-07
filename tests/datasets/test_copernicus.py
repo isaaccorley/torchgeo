@@ -1,7 +1,9 @@
 # Copyright (c) TorchGeo Contributors. All rights reserved.
 # Licensed under the MIT License.
 
+import io
 import os
+import pickle
 import shutil
 from pathlib import Path
 
@@ -159,6 +161,21 @@ class TestCopernicusPretrain:
         assert x['s5p_o3.pth'].shape == (1, 28, 28)
         assert x['s5p_so2.pth'].shape == (1, 28, 28)
         assert x['dem.pth'].shape == (960, 960)
+
+    def test_safe_decode(self, tmp_path: Path) -> None:
+        class Payload:
+            def __reduce__(self) -> tuple[object, tuple[str]]:
+                return os.system, (f'touch {tmp_path / "unsafe"}',)
+
+        buffer = io.BytesIO()
+        torch.save(Payload(), buffer)
+
+        with pytest.raises(pickle.UnpicklingError):
+            CopernicusPretrain._decode_pth('image.pth', buffer.getvalue())
+        assert not (tmp_path / 'unsafe').exists()
+
+    def test_decode_other_file(self) -> None:
+        assert CopernicusPretrain._decode_pth('metadata.json', b'{}') is None
 
     def test_plot(self, dataset: CopernicusPretrain) -> None:
         x = next(iter(dataset))

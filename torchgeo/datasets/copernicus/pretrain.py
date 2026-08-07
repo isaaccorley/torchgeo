@@ -5,6 +5,7 @@
 
 import random
 from collections.abc import Iterator
+from io import BytesIO
 from typing import Any, ClassVar
 
 import torch
@@ -104,9 +105,9 @@ class CopernicusPretrain(IterableDataset[Sample]):
         self.dataset = (
             wds.WebDataset(*args, **kwargs)
             .shuffle(10)  # shuffle individual samples before batching
-            .decode()  # decode binary data
-            .map(self._drop_metadata)  # remove non-Tensor metadata
             .select(self._has_all_modalities)  # select samples with all modalities
+            .decode(self._decode_pth)  # safely decode tensor data
+            .map(self._drop_metadata)  # remove non-Tensor metadata
             .map(self._sample_one_local_patch)  # sample one local patch for S1 and S2
             .map(self._sample_one_time_stamp)  # sample one timestamp for all modalities
         )
@@ -138,7 +139,22 @@ class CopernicusPretrain(IterableDataset[Sample]):
 
         return new_sample
 
-    def _has_all_modalities(self, sample: Sample) -> bool:
+    @staticmethod
+    def _decode_pth(key: str, data: bytes) -> object | None:
+        """Safely decode PyTorch tensor data.
+
+        Args:
+            key: File name within the sample.
+            data: Encoded file contents.
+
+        Returns:
+            Decoded data for PyTorch files, otherwise None.
+        """
+        if key.endswith('.pth'):
+            return torch.load(BytesIO(data), weights_only=True)
+        return None
+
+    def _has_all_modalities(self, sample: dict[str, object]) -> bool:
         """Selection function: filter samples with all required modalities.
 
         Args:
